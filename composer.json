@@ -2,7 +2,7 @@
 	"name": "dotty/dotty",
 	"type": "library",
 	"description": "Easy access to array data using dot notation",
-	"keywords": ["array","notation","arguments","json"],
+	"keywords": ["array","arrays","notation","json","search","query"],
 	"homepage": "https://github.com/thesmart/php-dotty",
 	"license": "MIT",
 	"authors": [
