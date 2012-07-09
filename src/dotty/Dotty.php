@@ -12,7 +12,38 @@ class Dotty {
 
 	private static $notationMemo	= array();
 
-	private function __construct() {
+	/**
+	 * @var mixed&
+	 */
+	private $data	= null;
+
+	/**
+	 * The last result
+	 * @var mixed
+	 */
+	private $lastResult	= null;
+
+	private function __construct(&$data) {
+		$this->data	=& $data;
+	}
+
+	/**
+	 * Set the data to parse in a chain
+	 *
+	 * @static
+	 * @param array $data
+	 * @return Dotty
+	 */
+	public static function with(array &$data) {
+		return new Dotty($data);
+	}
+
+	/**
+	 * Access the result
+	 * @return mixed&
+	 */
+	public function &result() {
+		return $this->lastResult;
 	}
 
 	/**
@@ -20,7 +51,7 @@ class Dotty {
 	 * @param string $notation
 	 * @return array
 	 */
-	private static function parseNotation($notation) {
+	private function parseNotation($notation) {
 		if (isset(self::$notationMemo[$notation])) {
 			return self::$notationMemo[$notation];
 		}
@@ -38,19 +69,23 @@ class Dotty {
 			}
 		}
 
-		return self::$notationMemo[$notation]	= $instructions;
+		return self::$notationMemo[$notation] = $instructions;
 	}
 
 	/**
 	 * @throws \InvalidArgumentException
 	 *
 	 * @param string $notation		Dot notation
-	 * @param array& $dataCursor	Data to search through
-	 * @return mixed&	A reference to the data
+	 * @return Dotty
 	 */
-	public static function &dot($notation, array &$data) {
-		$dataCursor		=& $data;
-		$instructions	= self::parseNotation($notation);
+	public function dot($notation) {
+		$dataCursor		=& $this->data;
+		if (empty($notation)) {
+			$this->lastResult =& $dataCursor;
+			return $this;
+		}
+
+		$instructions	= $this->parseNotation($notation);
 
 		$pathSoFar	= array();
 		foreach ($instructions as $x) {
@@ -71,58 +106,47 @@ class Dotty {
 			}
 		}
 
-		return $dataCursor;
+		$this->lastResult =& $dataCursor;
+		return $this;
 	}
 
 	/**
 	 * Query an array for a set of data. The last symbol in the notation designates a set
 	 *
-	 * @static
 	 * @param string $notation		Dot notation
-	 * @param array& $dataCursor	Data to search through
-	 * @return array&
+	 * @return Dotty
 	 */
-	public static function set($notation, array &$data) {
-		$instructions	= self::parseNotation($notation);
+	public function set($notation) {
+		$instructions	= $this->parseNotation($notation);
 
 		// the last symbol is the
 		$setKey			= array_pop($instructions);
 
-		// get the sub tree
-		if (empty($instructions)) {
-			return $data[$setKey];
-		}
-
-		try {
-			$subData		= &self::dot(implode('.', $instructions), $data);
-		} catch (\InvalidArgumentException $iae) {
-			return array();
-		}
-
-		return self::all($setKey, $subData);
+		$this->dot(implode('.', $instructions))->all($setKey);
+		return $this;
 	}
 
 	/**
 	 * Look through an array of arrays for the first key that matches $ket
-	 * @static
+	 *
 	 * @param string $key		The key to match
-	 * @param array& $data		The data to search through
-	 * @return mixed&
+	 * @return Dotty
+	 * @throws \InvalidArgumentException
 	 */
-	public static function &first($key, array &$data) {
+	public function first($key) {
 		$result = array();
-		self::r_first($key, $data, $result);
+		self::r_first($key, $this->data, $result);
 
 		if (empty($result)) {
 			throw new \InvalidArgumentException(sprintf('"%s" does not exist', $key));
 		}
 
-		return $result[0];
+		$this->lastResult =& $result[0];
+		return $this;
 	}
 
 	/**
 	 * Recursive helper
-	 * @static
 	 * @param $key
 	 * @param $data
 	 * @param array $result
@@ -151,20 +175,18 @@ class Dotty {
 
 	/**
 	 * Look through an array of arrays for all key-matches of $key
-	 * @static
 	 * @param string $key		The key to match
-	 * @param array& $data		The data to search through
-	 * @return array&
+	 * @return Dotty
 	 */
-	public static function &all($key, array &$data) {
+	public function all($key) {
 		$results = array();
-		self::r_all($key, $data, $results);
-		return $results;
+		self::r_all($key, $this->data, $results);
+		$this->lastResult =& $results;
+		return $this;
 	}
 
 	/**
 	 * Recursive helper
-	 * @static
 	 * @param $key
 	 * @param $data
 	 * @param array $results
