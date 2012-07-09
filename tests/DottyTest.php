@@ -11,11 +11,11 @@ class DottyTest extends \PHPUnit_Framework_TestCase
 {
 	public function testDot() {
 		$data = array('name' => 'Scrooge McDuck');
-		$found = Dotty::with($data)->dot('name')->result();
+		$found = Dotty::with($data)->one('name')->result();
 		$this->assertEquals('Scrooge McDuck', $found);
 
 		$data = array('Daffy Duck');
-		$found = Dotty::with($data)->dot('[0]')->result();
+		$found = Dotty::with($data)->one('[0]')->result();
 		$this->assertEquals('Daffy Duck', $found);
 
 		$data = array(
@@ -38,25 +38,25 @@ class DottyTest extends \PHPUnit_Framework_TestCase
 			)
 		);
 
-		$found = &Dotty::with($data)->dot('piece.name')->result();
+		$found = &Dotty::with($data)->one('piece.name')->result();
 		$this->assertEquals($data['piece']['name'], $found);
 
 		$found	= 'Radiohead';
 		$this->assertEquals($found, $data['piece']['name']);
 
-		$found = &Dotty::with($data)->dot('piece.measures[1].notes')->result();
+		$found = &Dotty::with($data)->one('piece.measures[1].notes')->result();
 		$this->assertEquals($data['piece']['measures'][1]['notes'], $found);
 
-		$found = &Dotty::with($data)->dot('piece.measures[1].notes[2]')->result();
+		$found = &Dotty::with($data)->one('piece.measures[1].notes[2]')->result();
 		$this->assertEquals($data['piece']['measures'][1]['notes'][2], $found);
 
 		// test mutation
-		$found = &Dotty::with($data)->dot('piece.measures[1].notes[2]', $data)->result();
+		$found = &Dotty::with($data)->one('piece.measures[1].notes[2]', $data)->result();
 		$found	= 14;
 		$this->assertEquals($found, $data['piece']['measures'][1]['notes'][2]);
 
 		$this->setExpectedException('\InvalidArgumentException');
-		Dotty::with($data = array())->dot('foobar');
+		Dotty::with($data = array())->one('foobar');
 	}
 
 	public function testFirst() {

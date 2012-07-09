@@ -78,7 +78,7 @@ class Dotty {
 	 * @param string $notation		Dot notation
 	 * @return Dotty
 	 */
-	public function dot($notation) {
+	public function one($notation) {
 		$dataCursor		=& $this->data;
 		if (empty($notation)) {
 			$this->lastResult =& $dataCursor;
@@ -122,7 +122,7 @@ class Dotty {
 		// the last symbol is the
 		$setKey			= array_pop($instructions);
 
-		$this->dot(implode('.', $instructions))->all($setKey);
+		$this->one(implode('.', $instructions))->all($setKey);
 		return $this;
 	}
 
