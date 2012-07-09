@@ -26,6 +26,11 @@ Require Dotty:
 	$ composer require dotty/dotty
 	// specify 0.0.*
 
+Link to composer packages in your PHP:
+
+	// Load vendor libraries
+	require 'vendor/autoload.php';
+
 Done.
 
 # Example
