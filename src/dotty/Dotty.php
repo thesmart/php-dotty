@@ -10,18 +10,20 @@ namespace dotty;
  */
 class Dotty {
 
+	private static $notationMemo	= array();
+
 	private function __construct() {
 	}
 
 	/**
-	 * @throws \InvalidArgumentException
-	 *
-	 * @param string $notation		Dot notation
-	 * @param array& $dataCursor	Data to search through
-	 * @return mixed&	A reference to the data
+	 * Parse a notation string into an array of instructions
+	 * @param string $notation
+	 * @return array
 	 */
-	public static function &dot($notation, array &$data) {
-		$dataCursor		=& $data;
+	private static function parseNotation($notation) {
+		if (isset(self::$notationMemo[$notation])) {
+			return self::$notationMemo[$notation];
+		}
 
 		$instructions	= array();
 		$symbols		= explode('.', $notation);
@@ -35,6 +37,21 @@ class Dotty {
 				$instructions[]	= $symbol;
 			}
 		}
+
+		return self::$notationMemo[$notation]	= $instructions;
+	}
+
+	/**
+	 * @throws \InvalidArgumentException
+	 *
+	 * @param string $notation		Dot notation
+	 * @param array& $dataCursor	Data to search through
+	 * @return mixed&	A reference to the data
+	 */
+	public static function &dot($notation, array &$data) {
+		$dataCursor		=& $data;
+		$instructions	= self::parseNotation($notation);
+
 
 		$pathSoFar	= array();
 		foreach ($instructions as $x) {
