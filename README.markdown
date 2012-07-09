@@ -7,6 +7,29 @@ Access array data quickly using dot notation.
 
 Getting hit in the face with a data fire-hose is painful. Enter Dotty.
 
+	$allIds	= Dotty::with($data)->set('data.users.id')->result();
+
+# Install
+
+Install composer:
+
+	$ curl -s http://getcomposer.org/installer | php
+	$ sudo mv composer.phar /usr/local/bin/composer
+
+Create a composer.json manifest:
+
+	$ cd ~/your-project-folder
+	$ echo "{}" > composer.json
+
+Require Dotty:
+
+	$ composer require dotty/dotty
+	// specify 0.0.*
+
+Done.
+
+# Example
+
 	{
 	   "data": [
 	      {
@@ -80,7 +103,7 @@ Notation is dotty is simple. Consider again the dataset above:
 	// finds all sub-nodes matching a key (even at different levels in the data)
 	Dotty::with($data)->all('name');
 
-** WARNING ** above, when I say pulls *ALL* sub-nodes, does not stop at a specific level in the data tree.
+**WARNING** above, when I say pulls *ALL* sub-nodes, does not stop at a specific level in the data tree.
 
 	// takes everything before the last dot, and uses it for a "one" operation
 	// uses the last symbol, uses it for an "all" operation
