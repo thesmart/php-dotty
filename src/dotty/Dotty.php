@@ -73,6 +73,46 @@ class Dotty {
 	}
 
 	/**
+	 * Ensure that a path exists, setting it with null if it does not.
+	 *
+	 * @param string $notation		Dot notation
+	 * @return Dotty
+	 */
+	public function ensure($notation) {
+		$dataCursor		=& $this->data;
+		if (empty($notation)) {
+			$this->lastResult =& $dataCursor;
+			return $this;
+		}
+
+		$instructions	= $this->parseNotation($notation);
+		for ($i = 0; $i < count($instructions); ++$i) {
+			$isLast = ($i + 1 === count($instructions));
+			if (!is_array($dataCursor)) {
+				if (is_null($dataCursor)) {
+					$dataCursor = array();
+				} else {
+					throw new \InvalidArgumentException('unable to ensure path that contains a non-array');
+				}
+			}
+
+			$x	= $instructions[$i];
+			if (!array_key_exists($x, $dataCursor)) {
+				if ($isLast) {
+					$dataCursor[$x] = null;
+				} else {
+					$dataCursor[$x] = array();
+				}
+			}
+
+			$dataCursor =& $dataCursor[$x];
+		}
+
+		$this->lastResult =& $dataCursor;
+		return $this;
+	}
+
+	/**
 	 * @throws \InvalidArgumentException
 	 *
 	 * @param string $notation		Dot notation

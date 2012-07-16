@@ -162,4 +162,35 @@ DATA;
 		$names	= Dotty::with($data)->all('name')->result();
 		$this->assertEquals(array("Farenheit 451","Coders at work","Age of Spiritual Machines","The Internets","Ender's Game","Catcher In The Rye","George Orwell"), $names);
 	}
+
+	public function testEnsure() {
+		$data	= array();
+		Dotty::with($data)->ensure('level1');
+		$this->assertArrayHasKey('level1', $data);
+
+		$data	= array();
+		Dotty::with($data)->ensure('level1.level2.level3');
+		$this->assertArrayHasKey('level1', $data);
+		$this->assertArrayHasKey('level2', $data['level1']);
+		$this->assertArrayHasKey('level3', $data['level1']['level2']);
+		$this->assertNull($data['level1']['level2']['level3']);
+
+		$data	= array();
+		Dotty::with($data)->ensure('level1.level2.level3[3]');
+		$this->assertArrayHasKey('level1', $data);
+		$this->assertArrayHasKey('level2', $data['level1']);
+		$this->assertArrayHasKey('level3', $data['level1']['level2']);
+		$this->assertArrayHasKey(3, $data['level1']['level2']['level3']);
+		$this->assertNull($data['level1']['level2']['level3'][3]);
+
+		$data	= array('cast' => array('path' => null));
+		Dotty::with($data)->ensure('cast.path.for.me');
+		$this->assertArrayHasKey('for', $data['cast']['path']);
+		$this->assertInternalType('array', $data['cast']['path']['for']);
+		$this->assertArrayHasKey('me', $data['cast']['path']['for']);
+
+		$this->setExpectedException('\InvalidArgumentException');
+		$data	= array('foo' => array('bar' => 'hello world'));
+		Dotty::with($data)->ensure('foo.bar.me');
+	}
 }
