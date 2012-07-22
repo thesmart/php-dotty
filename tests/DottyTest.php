@@ -56,7 +56,7 @@ class DottyTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($found, $data['piece']['measures'][1]['notes'][2]);
 
 		$this->setExpectedException('\InvalidArgumentException');
-		Dotty::with($data = array())->one('foobar');
+		Dotty::with($data = array())->one('foobar', true);
 	}
 
 	public function testFirst() {
@@ -82,7 +82,7 @@ class DottyTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(11, $data[0]['intensity']);
 
 		$this->setExpectedException('\InvalidArgumentException');
-		Dotty::with($data)->first('foobar');
+		Dotty::with($data)->first('foobar', true);
 	}
 
 	public function testAll() {

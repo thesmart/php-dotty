@@ -116,9 +116,10 @@ class Dotty {
 	 * @throws \InvalidArgumentException
 	 *
 	 * @param string $notation		Dot notation
+	 * @param boolean $require		Optional. Set true to throw an exception if $notation is not found.
 	 * @return Dotty
 	 */
-	public function one($notation) {
+	public function one($notation, $require = false) {
 		$dataCursor		=& $this->data;
 		if (empty($notation)) {
 			$this->lastResult =& $dataCursor;
@@ -141,8 +142,11 @@ class Dotty {
 
 			if (array_key_exists($x, $dataCursor)) {
 				$dataCursor =& $dataCursor[$x];
-			} else {
+			} else if ($require) {
 				throw new \InvalidArgumentException(sprintf('"%s" does not exist', implode('.', $pathSoFar)));
+			} else {
+				$this->lastResult = null;
+				return $this;
 			}
 		}
 
@@ -151,34 +155,24 @@ class Dotty {
 	}
 
 	/**
-	 * Query an array for a set of data. The last symbol in the notation designates a set
-	 *
-	 * @param string $notation		Dot notation
-	 * @return Dotty
-	 */
-	public function set($notation) {
-		$instructions	= $this->parseNotation($notation);
-
-		// the last symbol is the
-		$setKey			= array_pop($instructions);
-
-		$this->one(implode('.', $instructions))->all($setKey);
-		return $this;
-	}
-
-	/**
 	 * Look through an array of arrays for the first key that matches $ket
 	 *
-	 * @param string $key		The key to match
+	 * @param string $key			The key to match
+	 * @param boolean $require		Optional. Set true to throw an exception if $notation is not found.
 	 * @return Dotty
 	 * @throws \InvalidArgumentException
 	 */
-	public function first($key) {
+	public function first($key, $require = false) {
 		$result = array();
 		self::r_first($key, $this->data, $result);
 
 		if (empty($result)) {
-			throw new \InvalidArgumentException(sprintf('"%s" does not exist', $key));
+			if ($require) {
+				throw new \InvalidArgumentException(sprintf('"%s" does not exist', $key));
+			} else {
+				$this->lastResult = null;
+				return $this;
+			}
 		}
 
 		$this->lastResult =& $result[0];
