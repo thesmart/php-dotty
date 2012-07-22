@@ -23,6 +23,12 @@ class Dotty {
 	 */
 	private $lastResult	= null;
 
+	/**
+	 * did the last query meet a result?
+	 * @var bool
+	 */
+	private $hasLast = false;
+
 	private function __construct(&$data) {
 		$this->data	=& $data;
 	}
@@ -44,6 +50,14 @@ class Dotty {
 	 */
 	public function &result() {
 		return $this->lastResult;
+	}
+
+	/**
+	 * did the last query meet a result?
+	 * @return bool
+	 */
+	public function hasResult() {
+		return $this->hasLast;
 	}
 
 	/**
@@ -74,14 +88,19 @@ class Dotty {
 
 	/**
 	 * Ensure that a path exists, setting it with null if it does not.
+	 * @throws \InvalidArgumentException		Thrown when unable to ensure a path due if dead-end value exists along path
 	 *
 	 * @param string $notation		Dot notation
 	 * @return Dotty
 	 */
 	public function ensure($notation) {
+		$this->lastResult = null;
+		$this->hasLast = false;
+
 		$dataCursor		=& $this->data;
 		if (empty($notation)) {
 			$this->lastResult =& $dataCursor;
+			$this->hasLast = true;
 			return $this;
 		}
 
@@ -109,6 +128,7 @@ class Dotty {
 		}
 
 		$this->lastResult =& $dataCursor;
+		$this->hasLast = true;
 		return $this;
 	}
 
@@ -120,9 +140,13 @@ class Dotty {
 	 * @return Dotty
 	 */
 	public function one($notation, $require = false) {
+		$this->lastResult = null;
+		$this->hasLast = false;
+
 		$dataCursor		=& $this->data;
 		if (empty($notation)) {
 			$this->lastResult =& $dataCursor;
+			$this->hasLast = true;
 			return $this;
 		}
 
@@ -145,12 +169,12 @@ class Dotty {
 			} else if ($require) {
 				throw new \InvalidArgumentException(sprintf('"%s" does not exist', implode('.', $pathSoFar)));
 			} else {
-				$this->lastResult = null;
 				return $this;
 			}
 		}
 
 		$this->lastResult =& $dataCursor;
+		$this->hasLast = true;
 		return $this;
 	}
 
@@ -163,6 +187,9 @@ class Dotty {
 	 * @throws \InvalidArgumentException
 	 */
 	public function first($key, $require = false) {
+		$this->lastResult = null;
+		$this->hasLast = false;
+
 		$result = array();
 		self::r_first($key, $this->data, $result);
 
@@ -170,12 +197,12 @@ class Dotty {
 			if ($require) {
 				throw new \InvalidArgumentException(sprintf('"%s" does not exist', $key));
 			} else {
-				$this->lastResult = null;
 				return $this;
 			}
 		}
 
 		$this->lastResult =& $result[0];
+		$this->hasLast = true;
 		return $this;
 	}
 
@@ -213,9 +240,13 @@ class Dotty {
 	 * @return Dotty
 	 */
 	public function all($key) {
+		$this->lastResult = null;
+		$this->hasLast = false;
+
 		$results = array();
 		self::r_all($key, $this->data, $results);
 		$this->lastResult =& $results;
+		$this->hasLast = !empty($results);
 		return $this;
 	}
 

@@ -55,6 +55,10 @@ class DottyTest extends \PHPUnit_Framework_TestCase
 		$found	= 14;
 		$this->assertEquals($found, $data['piece']['measures'][1]['notes'][2]);
 
+		$dotty = Dotty::with($data)->first('foobar');
+		$this->assertFalse($dotty->hasResult());
+		$this->assertNull($dotty->result());
+
 		$this->setExpectedException('\InvalidArgumentException');
 		Dotty::with($data = array())->one('foobar', true);
 	}
@@ -80,6 +84,10 @@ class DottyTest extends \PHPUnit_Framework_TestCase
 		// test mutation
 		$forte	= 11;
 		$this->assertEquals(11, $data[0]['intensity']);
+
+		$dotty = Dotty::with($data)->first('foobar');
+		$this->assertFalse($dotty->hasResult());
+		$this->assertNull($dotty->result());
 
 		$this->setExpectedException('\InvalidArgumentException');
 		Dotty::with($data)->first('foobar', true);
