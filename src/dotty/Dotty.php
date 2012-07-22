@@ -34,6 +34,15 @@ class Dotty {
 	}
 
 	/**
+	 * Reset the state of Dotty's results
+	 */
+	private function reset() {
+		unset($this->lastResult);
+		$this->lastResult 	= null;
+		$this->hasLast		= false;
+	}
+
+	/**
 	 * Set the data to parse in a chain
 	 *
 	 * @static
@@ -94,8 +103,7 @@ class Dotty {
 	 * @return Dotty
 	 */
 	public function ensure($notation) {
-		$this->lastResult = null;
-		$this->hasLast = false;
+		$this->reset();
 
 		$dataCursor		=& $this->data;
 		if (empty($notation)) {
@@ -140,8 +148,7 @@ class Dotty {
 	 * @return Dotty
 	 */
 	public function one($notation, $require = false) {
-		$this->lastResult = null;
-		$this->hasLast = false;
+		$this->reset();
 
 		$dataCursor		=& $this->data;
 		if (empty($notation)) {
@@ -187,8 +194,7 @@ class Dotty {
 	 * @throws \InvalidArgumentException
 	 */
 	public function first($key, $require = false) {
-		$this->lastResult = null;
-		$this->hasLast = false;
+		$this->reset();
 
 		$result = array();
 		self::r_first($key, $this->data, $result);
@@ -240,8 +246,7 @@ class Dotty {
 	 * @return Dotty
 	 */
 	public function all($key) {
-		$this->lastResult = null;
-		$this->hasLast = false;
+		$this->reset();
 
 		$results = array();
 		self::r_all($key, $this->data, $results);
