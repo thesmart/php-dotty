@@ -201,4 +201,31 @@ DATA;
 		$data	= array('foo' => array('bar' => 'hello world'));
 		Dotty::with($data)->ensure('foo.bar.me');
 	}
+
+	public function testRenege() {
+		$data = array(
+			'mammals' => array(
+				'felines' => array(
+					'lions' => 'africa',
+					'puma' => 'asia',
+					'cats' => 'world'
+				), 'k9'	=> array(
+					'wolves' => 'america',
+					'hyena' => 'africa',
+					'dogs' => 'world'
+				)
+			)
+		);
+
+		$dotty = Dotty::with($data)->renege('mammals.felines.lions');
+		$this->assertArrayNotHasKey('lions', $data['mammals']['felines']);
+		$this->assertTrue($dotty->hasResult());
+
+		$dotty = Dotty::with($data)->renege('mammals.felines');
+		$this->assertArrayNotHasKey('felines', $data['mammals']);
+		$this->assertTrue($dotty->hasResult());
+
+		$dotty = Dotty::with($data)->renege('mammals.fungi');
+		$this->assertFalse($dotty->hasResult());
+	}
 }

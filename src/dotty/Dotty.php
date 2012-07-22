@@ -141,6 +141,46 @@ class Dotty {
 	}
 
 	/**
+	 * Unset the child of a path, if it exists
+	 *
+	 * @param string $notation		Dot notation
+	 * @return Dotty
+	 */
+	public function renege($notation) {
+		$this->reset();
+
+		if (empty($notation)) {
+			return $this;
+		}
+
+		$dataCursor		=& $this->data;
+		$instructions	= $this->parseNotation($notation);
+		for ($i = 0; $i < count($instructions); ++$i) {
+			$x	= $instructions[$i];
+
+			if (!is_array($dataCursor)) {
+				// done, path dead-end
+				return $this;
+			} else if (!array_key_exists($x, $dataCursor)) {
+				// done, path dead-end
+				return $this;
+			}
+
+			$isLast = ($i + 1 === count($instructions));
+			if ($isLast) {
+				$this->lastResult =& $dataCursor[$x];
+				$this->hasLast = true;
+				unset($dataCursor[$x]);
+				return $this;
+			}
+
+			$dataCursor =& $dataCursor[$x];
+		}
+
+		return $this;
+	}
+
+	/**
 	 * @throws \InvalidArgumentException
 	 *
 	 * @param string $notation		Dot notation
