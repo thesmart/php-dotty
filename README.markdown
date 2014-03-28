@@ -97,7 +97,7 @@ Done.
 
 # Dotty Notation
 
-Notation is dotty is simple. Consider again the dataset above:
+Notation in dotty is simple. Consider again the dataset above:
 
 	// finds a specific value at an exact address
 	Dotty::with($data)->one('data[1].name');
